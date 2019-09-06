@@ -5698,7 +5698,7 @@ int op_dimlayer_bl_enable_real = 0;
 int op_dimlayer_bl = 0;
 bool finger_type = false;
 //extern int aod_layer_hide;
-extern int op_dimlayer_bl_enable;
+//extern int op_dimlayer_bl_enable;
 extern int op_dp_enable;
 extern int sde_plane_check_fingerprint_layer(const struct drm_plane_state *drm_state);
 static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
