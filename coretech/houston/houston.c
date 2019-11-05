@@ -163,7 +163,7 @@ module_param_named(bat_update_period_us, bat_update_period_us, ulong, 0664);
 extern void bq27541_force_update_current(void);
 
 /* fps boost switch */
-static bool fps_boost_enable = true;
+static bool fps_boost_enable = false;
 module_param_named(fps_boost_enable, fps_boost_enable, bool, 0664);
 
 /* freq hispeed */
