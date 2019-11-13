@@ -1448,6 +1448,36 @@ TRACE_EVENT(sched_energy_diff,
 		__entry->backup_cpu, __entry->backup_energy)
 );
 
+/*
+ * Tracepoint for tracking misfit tasks
+ */
+TRACE_EVENT(sched_misfit_task,
+
+	TP_PROTO(struct task_struct *p, bool boosted, int cpu),
+
+	TP_ARGS(p, boosted, cpu),
+
+	TP_STRUCT__entry(
+		__field(int,	pid			)
+		__array(char, 	comm, TASK_COMM_LEN	)
+		__field(bool, 	boosted		)
+		__field(int,	cpu			)
+	),
+
+	TP_fast_assign(
+		__entry->pid	= p->pid;
+		memcpy(__entry->comm, p->comm, TASK_COMM_LEN);
+		__entry->boosted	= boosted;
+		__entry->cpu	= cpu;
+	),
+
+	TP_printk("pid=%d comm=%s boosted=%d cpu=%d",
+		__entry->pid,
+		__entry->comm,
+        __entry->boosted,
+		__entry->cpu)
+);
+
 TRACE_EVENT(sched_task_util,
 
 	TP_PROTO(struct task_struct *p, int next_cpu, int backup_cpu,
