@@ -1448,45 +1448,15 @@ TRACE_EVENT(sched_energy_diff,
 		__entry->backup_cpu, __entry->backup_energy)
 );
 
-/*
- * Tracepoint for tracking misfit tasks
- */
-TRACE_EVENT(sched_misfit_task,
-
-	TP_PROTO(struct task_struct *p, bool boosted, int cpu),
-
-	TP_ARGS(p, boosted, cpu),
-
-	TP_STRUCT__entry(
-		__field(int,	pid			)
-		__array(char, 	comm, TASK_COMM_LEN	)
-		__field(bool, 	boosted		)
-		__field(int,	cpu			)
-	),
-
-	TP_fast_assign(
-		__entry->pid	= p->pid;
-		memcpy(__entry->comm, p->comm, TASK_COMM_LEN);
-		__entry->boosted	= boosted;
-		__entry->cpu	= cpu;
-	),
-
-	TP_printk("pid=%d comm=%s boosted=%d cpu=%d",
-		__entry->pid,
-		__entry->comm,
-        __entry->boosted,
-		__entry->cpu)
-);
-
 TRACE_EVENT(sched_task_util,
 
 	TP_PROTO(struct task_struct *p, int next_cpu, int backup_cpu,
 		int target_cpu, bool sync, bool need_idle, int fastpath,
 		bool placement_boost, int rtg_cpu, u64 start_t,
-		bool stune_boosted, bool sync_boost),
+		bool stune_boosted),
 
 	TP_ARGS(p, next_cpu, backup_cpu, target_cpu, sync, need_idle, fastpath,
-		placement_boost, rtg_cpu, start_t, stune_boosted, sync_boost),
+		placement_boost, rtg_cpu, start_t, stune_boosted),
 
 	TP_STRUCT__entry(
 		__field(int, pid			)
@@ -1503,7 +1473,6 @@ TRACE_EVENT(sched_task_util,
 		__field(int, rtg_cpu			)
 		__field(u64, latency			)
 		__field(bool, stune_boosted		)
-		__field(bool, sync_boost		)
 	),
 
 	TP_fast_assign(
@@ -1521,15 +1490,14 @@ TRACE_EVENT(sched_task_util,
 		__entry->rtg_cpu		= rtg_cpu;
 		__entry->latency		= (sched_clock() - start_t);
 		__entry->stune_boosted		= stune_boosted;
-		__entry->sync_boost		= sync_boost;
 	),
 
-	TP_printk("pid=%d comm=%s util=%lu prev_cpu=%d next_cpu=%d backup_cpu=%d target_cpu=%d sync=%d need_idle=%d fastpath=%d placement_boost=%d rtg_cpu=%d latency=%llu stune_boosted=%d sync_boost=%d",
+	TP_printk("pid=%d comm=%s util=%lu prev_cpu=%d next_cpu=%d backup_cpu=%d target_cpu=%d sync=%d need_idle=%d fastpath=%d placement_boost=%d rtg_cpu=%d latency=%llu stune_boosted=%d",
 		__entry->pid, __entry->comm, __entry->util, __entry->prev_cpu,
 		__entry->next_cpu, __entry->backup_cpu, __entry->target_cpu,
 		__entry->sync, __entry->need_idle, __entry->fastpath,
 		__entry->placement_boost, __entry->rtg_cpu, __entry->latency,
-		__entry->stune_boosted, __entry->sync_boost)
+		__entry->stune_boosted)
 )
 
 /*
@@ -1594,6 +1562,26 @@ TRACE_EVENT(sched_isolate,
 		__entry->requested_cpu, __entry->isolated_cpus,
 		__entry->time, __entry->isolate)
 );
+
+#ifndef CONFIG_SCHED_WALT
+
+TRACE_EVENT(sched_set_boost,
+
+	TP_PROTO(int type),
+
+	TP_ARGS(type),
+
+	TP_STRUCT__entry(
+		__field(int, type			)
+	),
+
+	TP_fast_assign(
+		__entry->type = type;
+	),
+
+	TP_printk("type %d", __entry->type)
+);
+#endif /*CONFIG_SCHED_WALT*/
 
 #include "walt.h"
 
