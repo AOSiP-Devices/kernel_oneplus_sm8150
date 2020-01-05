@@ -3148,6 +3148,8 @@ static void _sde_crtc_clear_dim_layers_v1(struct sde_crtc_state *cstate)
 		memset(&cstate->dim_layer[i], 0, sizeof(cstate->dim_layer[i]));
 
 	cstate->num_dim_layers = 0;
+
+	sde_hw_dim_go_inactive();
 }
 
 /**
@@ -3189,6 +3191,11 @@ static void _sde_crtc_set_dim_layer_v1(struct sde_crtc_state *cstate,
 
 	/* populate from user space */
 	cstate->num_dim_layers = count;
+	if (count == 0) {
+		sde_hw_dim_go_inactive();
+		return;
+	}
+
 	for (i = 0; i < count; i++) {
 		user_cfg = &dim_layer_v1.layer_cfg[i];
 
