@@ -911,10 +911,10 @@ err_stop:
 	p54u_stop(dev);
 
 err_out:
-	/*
-	 * p54u_disconnect will do the rest of the
-	 * cleanup
-	 */
+
+	/* p54u_disconnect will do the rest of the */
+	/* cleanup */
+
 	return ret;
 }
 
