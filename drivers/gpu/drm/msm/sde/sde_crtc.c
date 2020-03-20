@@ -3148,6 +3148,8 @@ static void _sde_crtc_clear_dim_layers_v1(struct sde_crtc_state *cstate)
 		memset(&cstate->dim_layer[i], 0, sizeof(cstate->dim_layer[i]));
 
 	cstate->num_dim_layers = 0;
+
+	sde_hw_dim_go_inactive();
 }
 
 /**
@@ -3189,6 +3191,11 @@ static void _sde_crtc_set_dim_layer_v1(struct sde_crtc_state *cstate,
 
 	/* populate from user space */
 	cstate->num_dim_layers = count;
+	if (count == 0) {
+		sde_hw_dim_go_inactive();
+		return;
+	}
+
 	for (i = 0; i < count; i++) {
 		user_cfg = &dim_layer_v1.layer_cfg[i];
 
@@ -3394,6 +3401,7 @@ int bl_to_alpha_dc(int brightness)
 	return alpha;
 }
 
+extern int op_dimlayer_bl_enable;
 int oneplus_get_panel_brightness_to_alpha(void)
 {
 	struct dsi_display *display = get_main_display();
@@ -3402,7 +3410,7 @@ int oneplus_get_panel_brightness_to_alpha(void)
 		return 0;
 	if (oneplus_panel_alpha)
 		return oneplus_panel_alpha;
-    if (display->panel->dim_status)
+    if (!op_dimlayer_bl_enable || display->panel->dim_status)
 		return brightness_to_alpha(display->panel->hbm_backlight);
     else
 	return bl_to_alpha_dc(display->panel->hbm_backlight);
@@ -5697,7 +5705,7 @@ int op_dimlayer_bl_enable_real = 0;
 int op_dimlayer_bl = 0;
 bool finger_type = false;
 //extern int aod_layer_hide;
-extern int op_dimlayer_bl_enable;
+//extern int op_dimlayer_bl_enable;
 extern int op_dp_enable;
 extern int sde_plane_check_fingerprint_layer(const struct drm_plane_state *drm_state);
 static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
@@ -5749,9 +5757,10 @@ static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
 			fppressed_index = i;
 			fppressed_index_rt = i;
 		}
-        if (mode ==3)
-            aod_index = i;
+                if (mode ==3)
+                    aod_index = i;
 	}
+
 	if(fp_index >=0 && dim_mode!=0)
 		display->panel->dim_status = true;
 	else
@@ -5899,6 +5908,15 @@ static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
 		cstate->fingerprint_dim_layer = NULL;
 	}
 
+        if (fp_mode == 1) {
+                display->panel->dim_status = true;
+                cstate->fingerprint_pressed = true;
+                return 0;
+        } else if (fp_mode == 0) {
+                display->panel->dim_status = false;
+                cstate->fingerprint_pressed = false;
+                return 0;
+        }
 	return 0;
 }
 
