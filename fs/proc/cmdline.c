@@ -46,10 +46,7 @@ static void patch_safetynet_flags(char *cmd)
 {
 	patch_flag(cmd, "androidboot.veritymode=", "enforcing");
 	patch_flag(cmd, "androidboot.vbmeta.device_state=", "locked");
-	if (strstr(saved_command_line, "project_name=18857") ||
-		strstr(saved_command_line, "project_name=18821")) {
-		patch_flag(cmd, "androidboot.verifiedbootstate=", "green");
-	}
+	patch_flag(cmd, "androidboot.verifiedbootstate=", "green");
 }
 
 static int __init proc_cmdline_init(void)
